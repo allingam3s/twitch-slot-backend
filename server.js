@@ -11,7 +11,9 @@ const SLOT_API_URL = 'https://twitch-slot-api.onrender.com/queue';
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+  origin: '*' // Erlaubt Anfragen von allen Domains
+}));
 
 // Aktuelle Queue als Zwischenspeicher
 let slotQueue = [];

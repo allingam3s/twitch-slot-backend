@@ -12,6 +12,7 @@ app.use(cors());
 // Aktuelle Queue als Zwischenspeicher
 let slotQueue = [];
 let hasInitialLoad = false;
+let isOpen = true; // Status-Variable für geöffnet/geschlossen
 // Queue initial laden
 async function loadQueue() {
   // Wenn die Queue bereits Einträge hat und nicht die erste Ladung ist, 
@@ -45,7 +46,6 @@ async function loadQueue() {
 }
 // Queue initial laden
 loadQueue();
-// Wir verzichten auf das regelmäßige Neuladen, da wir die Queue manuell verwalten
 // Endpunkt für !sr-Befehl
 app.get('/add', async (req, res) => {
   const { name, request } = req.query;
@@ -55,9 +55,6 @@ app.get('/add', async (req, res) => {
   }
   
   try {
-    // Hier würde normalerweise ein POST-Request an Ihre API gehen
-    // Da wir aber nur Leserechte haben, simulieren wir das Hinzufügen
-    
     // Neuen Eintrag zur lokalen Queue hinzufügen
     slotQueue.push({ name, request });
     
@@ -71,8 +68,6 @@ app.get('/add', async (req, res) => {
 // Endpunkt für !next-Befehl
 app.get('/next', async (req, res) => {
   try {
-    // Keine Queue aktualisierung mehr hier, um die bestehende Liste zu erhalten
-    
     if (slotQueue.length === 0) {
       return res.send('Die Liste ist leer!');
     }
@@ -87,9 +82,27 @@ app.get('/next', async (req, res) => {
     res.status(500).send('Fehler beim Aufrufen des nächsten Slots');
   }
 });
+// Endpunkt für !clear-Befehl
+app.get('/clear', (req, res) => {
+  slotQueue = [];
+  res.send('Slot-Liste wurde geleert!');
+});
+// Endpunkt für !open-Befehl  
+app.get('/open', (req, res) => {
+  isOpen = true;
+  res.send('Anfragen sind jetzt geöffnet!');
+});
+// Endpunkt für !close-Befehl
+app.get('/close', (req, res) => {
+  isOpen = false;
+  res.send('Anfragen sind jetzt geschlossen!');
+});
 // Endpunkt für JSON-Daten (für Ihr Overlay)
 app.get('/slots.json', (req, res) => {
-  res.json(slotQueue);
+  res.json({
+    slots: slotQueue,
+    isOpen: isOpen
+  });
 });
 // Server starten
 app.listen(PORT, () => {

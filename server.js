@@ -53,6 +53,10 @@ app.get('/add', async (req, res) => {
   if (!name || !request) {
     return res.status(400).send('Name und Wunsch müssen angegeben werden');
   }
+  // Prüfen ob Anfragen geschlossen sind
+  if (!isOpen) {
+    return res.send('Anfragen sind derzeit geschlossen!');
+  }
   
   try {
     // Neuen Eintrag zur lokalen Queue hinzufügen
